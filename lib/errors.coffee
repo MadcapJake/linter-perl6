@@ -1,12 +1,15 @@
 remUnusedLines = (lines) ->
   nextLine = lines.shift()
-  if nextLine.match(/^    /)
+  if nextLine is undefined
+    null
+  else if nextLine.match(/^    /)
     remUnusedLines(lines)
   else if nextLine.match(/^$/)
     remUnusedLines(lines)
   else
-    lines.unshift(nextLine)
+    lines.unshift(next)
     lines
+
 
 module.exports =
   Ats:
@@ -14,15 +17,39 @@ module.exports =
     used: /^\s*([\w\-]+) used at lines? (\d+)/
   Errors: [
     {
+      name: 'X::Syntax::Confused'
+      re: /Two terms in a row.*/
+      at_style: 'simple'
+      build: (textEditor, filePath, re, lines, at_re) ->
+        console.info 'X::Syntax::Confused'
+        [message, _] = lines.shift().match(re)
+        [_, _, lineNum] = lines.shift().match(at_re)
+        ar = /^------>\s\x1b\[32m([^\x1b]*)\x1b\[33m(\u23CF)\x1b\[31m([^\x1b]*)/
+        [_, green, _, red] = lines.shift().match(ar)
+        lines = remUnusedLines(lines)
+        cline = textEditor.lineTextForBufferRow(lineNum - 1)
+        colstart = cline.match(/\S/).index
+        colend = cline.length
+        {
+          lines: lines
+          result:
+            range: [
+              [lineNum - 1, colstart],
+              [lineNum - 1, colend  ]
+            ]
+            type: 'Error'
+            text: message
+            filePath: filePath
+        }
+    }
+    {
       name: 'X::Undeclared'
       re: /[\S]+ '([\S]+)' is not declared/
       at_style: 'simple'
       build: (textEditor, filePath, re, lines, at_re) ->
-        console.log  'X::Undeclared error'
+        console.info  'X::Undeclared'
         [message, variable, _] = lines.shift().match(re)
-        console.log lines
         lines = remUnusedLines(lines)
-        console.log lines
         [_, _, lineNum] = lines.shift().match(at_re)
         lines.shift()
         colstart = textEditor
@@ -46,7 +73,7 @@ module.exports =
       re: /(Undeclared routine):/
       at_style: 'used'
       build: (textEditor, filePath, re, lines, at_re) ->
-        console.log 'X::Undeclared::Routine error'
+        console.info 'X::Undeclared::Routine'
         [_, message] = lines.shift().match(re)
         [_, symbol, lineNum] = lines.shift().match(at_re)
         colstart = textEditor
@@ -70,7 +97,7 @@ module.exports =
       re: /In signature parameter ([^,]+), it is illegal to use the (.) twigil/
       at_style: 'simple'
       build: (textEditor, filePath, re, lines, at_re) ->
-        console.log 'X::Parameter::Twigil error'
+        console.info 'X::Parameter::Twigil'
         [message, variable, _] = lines.shift().match(re)
         [_, _, lineNum] = lines.shift().match(at_re)
         lines.shift()
@@ -95,7 +122,7 @@ module.exports =
       re: /([^:]+)(:)?/
       at_style: 'simple'
       build: (textEditor, filePath, re, lines, at_re) ->
-        console.log 'X::Generic error'
+        console.info 'X::Generic'
         [_, message, colon] = lines.shift().match(re)
         [_, _, lineNum] = lines.shift().match(at_re)
         ar = /^------>\s\x1b\[32m([^\x1b]*)\x1b\[33m(\u23CF)\x1b\[31m([^\x1b]*)/
@@ -103,7 +130,7 @@ module.exports =
         colstart = green.length - 1
         colend = colstart + red.length + 2
         {
-          lines: lins
+          lines: lines
           result:
             range: [
               [lineNum - 1, colstart],

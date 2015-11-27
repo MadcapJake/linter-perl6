@@ -34,7 +34,6 @@ module.exports = LinterPerl6 =
           for error in X.Errors
             if lines[0].match(error.re)
               {lines, result} = error.build(textEditor, filePath, error.re, lines, X.Ats[error.at_style])
-              console.log lines
               found = true
               break
           if not found
@@ -50,7 +49,7 @@ module.exports = LinterPerl6 =
 
           results.push result
 
-          gatherResults(filePath, lines, results) if lines[0].match(/.+/)
+          gatherResults(filePath, lines, results) if lines?[0].match(/.+/)
 
         return new Promise (resolve, reject) ->
           filePath = textEditor.getPath()
@@ -59,8 +58,8 @@ module.exports = LinterPerl6 =
             command: p6cmd
             args: ['-c', filePath]
             stderr: (output) ->
-              console.log 'stderr was printed to:'
-              console.log output
+              console.info 'stderr was printed to:'
+              console.info output
               lines = output.split('\n')
               lines.shift() # remove initial error line
               gatherResults(filePath, lines, results)
