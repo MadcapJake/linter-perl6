@@ -1,0 +1,8 @@
+[31m===[0mSORRY![31m===[0m Error while compiling /home/jrusso/github/linter-perl6/errors.p6
+Missing block
+at /home/jrusso/github/linter-perl6/errors.p6:25
+------> [32m  unless 1==2[33m⏏[31m [0m
+    expecting any of:
+        block or pointy block
+        infix
+        infix stopper

@@ -1,0 +1,26 @@
+{
+  "name": "linter-perl6",
+  "main": "./lib/linter-perl6",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "keywords": [
+    "perl6",
+    "lint",
+    "linter"
+  ],
+  "activationCommands": {},
+  "repository": "https://github.com/madcapjake/linter-perl6",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+  },
+  "providedServices": {
+    "linter": {
+      "versions": {
+        "1.0.0": "provideLinter"
+      }
+    }
+  }
+}
