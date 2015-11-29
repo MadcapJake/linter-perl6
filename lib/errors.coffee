@@ -131,6 +131,38 @@ module.exports =
         }
     }
     {
+      name: 'X::Syntax::Missing'
+      re: /Missing \w+/
+      at_style: 'simple'
+      build: (textEditor, filePath, re, lines, at_re) ->
+        console.info 'X::Syntax::Missing'
+        [message, _] = lines.shift().match(re)
+        [_, _, lineNum] = lines.shift().match(at_re)
+        ar = /^------>\s\x1b\[32m([^\x1b]*)\x1b\[33m(\u23CF)\x1b\[31m([^\x1b]*)/
+        [_, _, _, red] = lines.shift().match(ar)
+        lines = remUnusedLines(lines)
+        colstart = textEditor
+          .lineTextForBufferRow(lineNum - 1)
+          .indexOf(red)
+        colend = textEditor
+          .lineTextForBufferRow(lineNum - 1)
+          .length
+        {
+          lines: lines
+          results: [
+            {
+              range: [
+                [lineNum - 1, colstart],
+                [lineNum - 1, colend  ]
+              ]
+              type: 'Error'
+              text: message
+              filePath: filePath
+            }
+          ]
+        }
+    }
+    {
       name: 'X::Generic'
       re: /([^:]+)(:)?/
       at_style: 'simple'

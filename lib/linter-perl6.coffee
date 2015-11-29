@@ -35,8 +35,6 @@ module.exports = LinterPerl6 =
             console.log "Checking #{error.name}"
             if lines[0].match(error.re)
               {lines, results} = error.build(textEditor, filePath, error.re, lines, X.Ats[error.at_style])
-              # results = [results] unless typeof results is Array
-              console.log results
               found = true
               break
           if not found
