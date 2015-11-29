@@ -14,7 +14,7 @@ remUnusedLines = (lines) ->
 module.exports =
   Ats:
     simple: /^at ((?:\/[\w\-]+)*\.(?:p6|pl|pm6|pm|t)):(\d+)/
-    used: /^\s*([\w\-]+) used at lines? (\d+)/
+    used: /^\s*([\w\-]+) used at lines? (\d+(?:, \d+)*)/
   Errors: [
     {
       name: 'X::Syntax::Confused'
@@ -32,14 +32,17 @@ module.exports =
         colend = cline.length
         {
           lines: lines
-          result:
-            range: [
-              [lineNum - 1, colstart],
-              [lineNum - 1, colend  ]
-            ]
-            type: 'Error'
-            text: message
-            filePath: filePath
+          results: [
+            {
+              range: [
+                [lineNum - 1, colstart],
+                [lineNum - 1, colend  ]
+              ]
+              type: 'Error'
+              text: message
+              filePath: filePath
+            }
+          ]
         }
     }
     {
@@ -58,14 +61,17 @@ module.exports =
         colend = colstart + variable.length
         {
           lines: lines
-          result:
-            range: [
-              [lineNum - 1, colstart],
-              [lineNum - 1, colend  ]
-            ]
-            type: 'Error'
-            text: message
-            filePath: filePath
+          results: [
+            {
+              range: [
+                [lineNum - 1, colstart],
+                [lineNum - 1, colend  ]
+              ]
+              type: 'Error'
+              text: message
+              filePath: filePath
+            }
+          ]
         }
     }
     {
@@ -73,16 +79,16 @@ module.exports =
       re: /(Undeclared routine):/
       at_style: 'used'
       build: (textEditor, filePath, re, lines, at_re) ->
-        console.info 'X::Undeclared::Routine'
         [_, message] = lines.shift().match(re)
-        [_, symbol, lineNum] = lines.shift().match(at_re)
-        colstart = textEditor
-          .lineTextForBufferRow(lineNum - 1)
-          .indexOf(symbol)
-        colend = colstart + symbol.length
-        {
-          lines: lines
-          result:
+        [_, symbol, lineNums] = lines.shift().match(at_re)
+        results = []
+        for lineNum in (Number(sn) for sn in lineNums.split(", "))
+          console.log "lineNum: #{lineNum}"
+          colstart = textEditor
+            .lineTextForBufferRow(lineNum - 1)
+            .indexOf(symbol)
+          colend = colstart + symbol.length
+          results.push {
             range: [
               [lineNum - 1, colstart],
               [lineNum - 1, colend  ]
@@ -90,6 +96,10 @@ module.exports =
             type: 'Error'
             text: message
             filePath: filePath
+          }
+        {
+          lines: lines
+          results: results
         }
     }
     {
@@ -107,14 +117,17 @@ module.exports =
         colend = colstart + variable.length
         {
           lines: lines
-          result:
-            range: [
-              [lineNum - 1, colstart],
-              [lineNum - 1, colend  ]
-            ]
-            type: 'Error'
-            text: message
-            filePath: filePath
+          results: [
+            {
+              range: [
+                [lineNum - 1, colstart],
+                [lineNum - 1, colend  ]
+              ]
+              type: 'Error'
+              text: message
+              filePath: filePath
+            }
+          ]
         }
     }
     {
@@ -131,14 +144,17 @@ module.exports =
         colend = colstart + red.length + 2
         {
           lines: lines
-          result:
-            range: [
-              [lineNum - 1, colstart],
-              [lineNum - 1, colend  ]
-            ]
-            type: 'Error'
-            text: message
-            filePath: filePath
+          results: [
+            {
+              range: [
+                [lineNum - 1, colstart],
+                [lineNum - 1, colend  ]
+              ]
+              type: 'Error'
+              text: message
+              filePath: filePath
+            }
+          ]
         }
     }
   ]

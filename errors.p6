@@ -21,29 +21,32 @@
 #      }
 #  }
 
-sub takes-one-arg($only-arg) {
+sub routine($arg) {
   unless 1 == 2 {
     say 'hello!';
-    say $only-arg;
+    say $arg;
     my $reg = /asdasd/;
   }
   my $num = 12;
 }
-takes-one-arg('hello', 'world');
+routine('hello');
 say 'hello!';
 
 =begin pod
-wow this is awesome!
+linters are awesome!
 =end pod
 
-{
-  my $was_after_fail = 0;
-  my $was_after_su = 0;
-  my $sub = sub { fail 42; $was_after_fail++ };
+use Test;
 
-  use fatal;
-  try { $sub(); $was_after_su++ };
-
-  is $was_after_fail, 0, "fail() causes our sub to return (2)";
-  is $was_after_su,  0, "fail() causes our try to die";
+BEGIN {
+  throws-like { Buf.new().Str }, X::Buf::AsStr, method => 'Str';;
+  throws-like 'pack("B",  1)',       X::Buf::Pack, directive => 'B';
+  throws-like 'Buf.new.unpack("B")', X::Buf::Pack, directive => 'B';
+  throws-like 'pack "A2", "mÄ"',     X::Buf::Pack::NonASCII, char => 'Ä';
+  throws-like 'my class Foo { method a() { $!bar } }', X::Attribute::Undeclared,
+              symbol => '$!bar', package-name => 'Foo', package-kind => 'class',
+              what => 'attribute';
+  throws-like 'sub f() { $^x }', X::Signature::Placeholder,
+              line => 1,
+              placeholder => '$^x',
 }
