@@ -172,6 +172,7 @@ module.exports =
         [_, _, lineNum] = lines.shift().match(at_re)
         ar = /^------>\s\x1b\[32m([^\x1b]*)\x1b\[33m(\u23CF)\x1b\[31m([^\x1b]*)/
         [_, green, _, red] = lines.shift().match(ar)
+        lines = remUnusedLines(lines)
         colstart = green.length - 1
         colend = colstart + red.length + 2
         {
