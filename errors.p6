@@ -39,7 +39,7 @@ linters are awesome!
 use Test;
 
 BEGIN {
-  throws-like { Buf.new().Str }, X::Buf::AsStr, method => 'Str';;
+  throws-like  Buf.new().Str }, X::Buf::AsStr, method => 'Str';;
   throws-like 'pack("B",  1)',       X::Buf::Pack, directive => 'B';
   throws-like 'Buf.new.unpack("B")', X::Buf::Pack, directive => 'B';
   throws-like 'pack "A2", "mÄ"',     X::Buf::Pack::NonASCII, char => 'Ä';

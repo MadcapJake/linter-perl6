@@ -29,33 +29,6 @@ module.exports = LinterPerl6 =
       scope: 'file'
       lintOnFly: false
       lint: (textEditor) ->
-        gatherResults = (filePath, lines, results) ->
-          found = false
-          for error in X.Errors
-            console.log "Checking #{error.name}"
-            if lines[0].match(error.re)
-              {lines, results} = error.build(textEditor, filePath, error.re, lines, X.Ats[error.at_style])
-              found = true
-              break
-          if not found
-            linenum = textEditor.getLineCount()
-            results = [
-              {
-                range: [
-                  [lineNum - 1, 1],
-                  [lineNum - 1, 1]
-                ]
-                type: 'Error'
-                text: 'Unknown Error'
-                filePath: filePath
-              }
-            ]
-
-          if lines?[0].match(/.+/)
-            gatherResults(filePath, lines, results)
-          else
-            return results
-
         return new Promise (resolve, reject) ->
           filePath = textEditor.getPath()
           results = []
@@ -67,7 +40,7 @@ module.exports = LinterPerl6 =
               console.info output
               lines = output.split('\n')
               lines.shift() # remove initial error line
-              results = gatherResults(filePath, lines, results)
+              results = X.gatherResults(textEditor, filePath, lines, results)
             exit: (code) ->
               return resolve [] if code is 0
               return resolve [] unless results?
