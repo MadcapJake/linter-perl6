@@ -247,6 +247,56 @@ errors = [
       }
   }
   {
+    name: 'X::Buf::Pack'
+    re: /Unrecognized directive '(\S+)'/
+    at_style: 'simple'
+    build: (textEditor, filePath, lines, re, at_re, trace) ->
+      console.info 'X::Buf::Pack'
+      [message, directive] = lines.shift().match(re)
+      [_, _, lineNum] = lines.shift().match(at_re)
+      colstart = textEditor.lineTextForBufferRow(lineNum - 1).indexOf(directive)
+      colend = colstart + directive.length
+      {
+        lines: lines
+        results: [
+          {
+            type: if trace then 'Trace' else 'Error'
+            text: message
+            range: [
+              [lineNum - 1, colstart],
+              [lineNum - 1, colend  ]
+            ]
+            filePath: filePath
+          }
+        ]
+      }
+  }
+  {
+    name: 'X::Buf::Pack::NonASCII'
+    re: /non-ASCII character '(.)' while processing an '(.)' template in pack/
+    at_style: 'simple'
+    build: (textEditor, filePath, lines, re, at_re, trace) ->
+      console.info 'X::Buf::Pack::NonASCII'
+      [message, char, _] = lines.shift().match(re)
+      [_, _, lineNum] = lines.shift().match(at_re)
+      colstart = textEditor.lineTextForBufferRow(lineNum - 1).indexOf(char)
+      colend = colstart + 1
+      {
+        lines: lines
+        results: [
+          {
+            type: if trace then 'Trace' else 'Error'
+            text: message
+            range: [
+              [lineNum - 1, colstart],
+              [lineNum - 1, colend  ]
+            ]
+            filePath: filePath
+          }
+        ]
+      }
+  }
+  {
     name: 'X::Generic'
     re: /([^:]+)(:)?/
     at_style: 'simple'
