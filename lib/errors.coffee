@@ -7,7 +7,7 @@ remUnusedLines = (lines) ->
   else if nextLine.match(/^$/)
     remUnusedLines(lines)
   else
-    lines.unshift(next)
+    lines.unshift(nextLine)
     lines
 
 
