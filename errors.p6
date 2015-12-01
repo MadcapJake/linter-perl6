@@ -41,6 +41,11 @@ use Test;
 
 BEGIN {
   # my $b = pack "A2", "mÄ";
+  my class Foo {
+    method a() { $!bar }
+    method b() { $!bar + 2 }
+  }
+
   throws-like { Buf.new().Str }, X::Buf::AsStr, method => 'Str';;
   throws-like 'pack("B",  1)',       X::Buf::Pack, directive => 'B';
   throws-like 'Buf.new.unpack("B")', X::Buf::Pack, directive => 'B';

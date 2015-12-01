@@ -297,6 +297,42 @@ errors = [
       }
   }
   {
+    name: 'X::Attribute::Undeclared'
+    re: /Attribute (\S+) not declared in class (\S+)/
+    at_style: 'simple'
+    build: (textEditor, filePath, lines, re, at_re, trace) ->
+      console.info 'X::Attribute::Undeclared'
+      [message, attr, cls] = lines.shift().match(re)
+      [_, _, lineNum] = lines.shift().match(at_re)
+      lines.shift()
+      stepBack = 0
+      console.log "lineNum: #{lineNum}"
+      while true
+        newLN = Number(lineNum) + --stepBack
+        console.log "newLN: #{newLN}"
+        l = textEditor.lineTextForBufferRow(newLN)
+        pos = l.indexOf(attr)
+        unless pos is -1
+          lineNum  = newLN
+          colstart = pos
+          colend   = pos + attr.length
+          break
+      {
+        lines: lines
+        results: [
+          {
+            type: if trace then 'Trace' else 'Error'
+            text: message
+            range: [
+              [lineNum, colstart],
+              [lineNum, colend  ]
+            ]
+            filePath: filePath
+          }
+        ]
+      }
+  }
+  {
     name: 'X::Generic'
     re: /([^:]+)(:)?/
     at_style: 'simple'
