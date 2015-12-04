@@ -25,7 +25,7 @@ sub routine($arg) {
   unless 1 == 2 {
     say 'hello!';
     say $arg;
-    my $reg = /asdasd/;
+    my $reg = /s/;
   }
   my $num = 12;
 }
@@ -40,20 +40,5 @@ use Test;
 
 
 BEGIN {
-  # my $b = pack "A2", "mÄ";
-  my class Foo {
-    method a() { $!bar }
-    method b() { $!bar + 2 }
-  }
-
-  throws-like { Buf.new().Str }, X::Buf::AsStr, method => 'Str';;
-  throws-like 'pack("B",  1)',       X::Buf::Pack, directive => 'B';
-  throws-like 'Buf.new.unpack("B")', X::Buf::Pack, directive => 'B';
-  throws-like 'pack "A2", "mÄ"',     X::Buf::Pack::NonASCII, char => 'Ä';
-  throws-like 'my class Foo { method a() { $!bar } }', X::Attribute::Undeclared,
-              symbol => '$!bar', package-name => 'Foo', package-kind => 'class',
-              what => 'attribute';
-  throws-like 'sub f() { $^x }', X::Signature::Placeholder,
-              line => 1,
-              placeholder => '$^x',
+  sub f($?x) { };
 }

@@ -162,34 +162,6 @@ errors = [
       }
   }
   {
-    name: 'X::Parameter::Twigil'
-    re: /In signature parameter ([^,]+), it is illegal to use the (.) twigil/
-    at_style: 'simple'
-    build: (textEditor, filePath, lines, re, at_re, trace) ->
-      console.info 'X::Parameter::Twigil'
-      [message, variable, _] = lines.shift().match(re)
-      [_, _, lineNum] = lines.shift().match(at_re)
-      lines.shift()
-      colstart = textEditor
-        .lineTextForBufferRow(lineNum - 1)
-        .indexOf(variable)
-      colend = colstart + variable.length
-      {
-        lines: lines
-        results: [
-          {
-            range: [
-              [lineNum - 1, colstart],
-              [lineNum - 1, colend  ]
-            ]
-            type: if trace then 'Trace' else 'Error'
-            text: message
-            filePath: filePath
-          }
-        ]
-      }
-  }
-  {
     name: 'X::Syntax::Missing'
     re: /Missing \w+/
     at_style: 'simple'
@@ -333,11 +305,68 @@ errors = [
       }
   }
   {
+    name: 'X::Parameter::Placeholder'
+    re: /In signature parameter, placeholder variables like (\S+) are illegal/
+    at_style: 'simple'
+    build: (textEditor, filePath, lines, re, at_re, trace) ->
+      console.info 'X::Parameter::Placeholder'
+      [msgL1, variable] = lines.shift().match(re)
+      msgL2 = lines.shift()
+      [_, _, lineNum] = lines.shift().match(at_re)
+      lines.shift() # ------>
+      lines = remUnusedLines(lines)
+      colstart = textEditor.lineTextForBufferRow(lineNum - 1).indexOf(variable)
+      colend = colstart + variable.length
+      {
+        lines: lines
+        results: [
+          {
+            type: if trace then 'Trace' else 'Error'
+            text: msgL1 + msgL2
+            range: [
+              [lineNum - 1, colstart],
+              [lineNum - 1, colend  ]
+            ]
+            filePath: filePath
+          }
+        ]
+      }
+  }
+  {
+    name: 'X::Parameter::Twigil'
+    re: /In signature parameter (\S+), it is illegal to use the (\S) twigil/
+    at_style: 'simple'
+    build: (textEditor, filePath, lines, re, at_re, trace) ->
+      console.info 'X::Parameter::Twigil'
+      [message, parameter, twigil] = lines.shift().match(re)
+      [_, _, lineNum] = lines.shift().match(at_re)
+      lines.shift() # ------>
+      lines = remUnusedLines(lines)
+      colstart = textEditor
+        .lineTextForBufferRow(lineNum - 1).indexOf(parameter) + 1
+      colend = colstart + 1
+      {
+        lines: lines
+        results: [
+          {
+            type: if trace then 'Trace' else 'Error'
+            text: message
+            range: [
+              [lineNum - 1, colstart],
+              [lineNum - 1, colend  ]
+            ]
+            filePath: filePath
+          }
+        ]
+      }
+  }
+  {
     name: 'X::Generic'
-    re: /([^:]+)(:)?/
+    re: /(.+)(:)?$/
     at_style: 'simple'
     build: (textEditor, filePath, lines, re, at_re, trace) ->
       console.info 'X::Generic'
+      console.log lines
       [_, message, colon] = lines.shift().match(re)
       [_, _, lineNum] = lines.shift().match(at_re)
       ar = /^------>\s\x1b\[32m([^\x1b]*)\x1b\[33m(\u23CF)\x1b\[31m([^\x1b]*)/
